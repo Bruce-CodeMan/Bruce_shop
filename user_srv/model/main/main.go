@@ -6,26 +6,38 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"io"
+	"Bruce_shop/user_srv/model"
+	"crypto/sha512"
+	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/anaskhan96/go-password-encoder"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-
-	"Bruce_shop/user_srv/model"
 )
 
 // genMd5 Generate MD5
 func genMd5(code string) string {
-	Md5 := md5.New()
-	_, _ = io.WriteString(Md5, code)
-	return hex.EncodeToString(Md5.Sum(nil))
+	// Using custom options
+	options := &password.Options{
+		SaltLen:      16,
+		Iterations:   100,
+		KeyLen:       32,
+		HashFunction: sha512.New,
+	}
+	salt, encodedPwd := password.Encode(code, options)
+	// 最终生成的密码,使用$进行分割,$算法$盐值$密码
+	newPassword := fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodedPwd)
+	// 将密码解析出来, 但是要注意一点,passwordInfo的切片长度=4,第一个值是""
+	passwordInfo := strings.Split(newPassword, "$")
+	check := password.Verify(code, passwordInfo[2], passwordInfo[3], options)
+	fmt.Println(check)
+	return newPassword
 }
 
 func main() {
@@ -48,4 +60,5 @@ func main() {
 		panic(err)
 	}
 	_ = db.AutoMigrate(&model.User{})
+
 }
