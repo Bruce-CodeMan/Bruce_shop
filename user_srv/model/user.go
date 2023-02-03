@@ -1,3 +1,8 @@
+/*
+ * @Date: 2023-02-03 14:08:25
+ * @Author: Bruce
+ * @Description:
+ */
 package model
 
 import (
@@ -13,6 +18,13 @@ type BaseModel struct {
 	DeletedAt gorm.DeletedAt
 	IsDeleted bool `gorm:"column:is_deleted"`
 }
+
+/*
+	1. 密码,采用md5
+	2. 对称加密:[加密和解密是同一把钥匙]
+	3. 非对称加密:[加密和解密采用的不是用一把钥匙]
+	4. md5:信息摘要算法
+*/
 
 type User struct {
 	BaseModel
