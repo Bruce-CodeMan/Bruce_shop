@@ -60,7 +60,7 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// 获取用户列表
+// get the userInfo
 func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*proto.UserListResponse, error) {
 	var users []model.User
 	result := global.DB.Find(&users)
@@ -79,7 +79,7 @@ func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*pro
 	return resp, nil
 }
 
-// 通过mobile查询用户
+// query the user bu mobile
 func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileRequest) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.Where(&model.User{
@@ -95,7 +95,7 @@ func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileReque
 	return &userInfoResp, nil
 }
 
-// 通过id查询用户
+// query the user by id
 func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdRequest) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.First(&user, req.Id)
@@ -109,7 +109,7 @@ func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdRequest) (*pr
 	return &userInfoResp, nil
 }
 
-// 创建用户
+// create the user
 func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.Where(&model.User{Mobile: req.Mobile}).First(&user)
@@ -140,7 +140,7 @@ func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) 
 	return &userInfoResp, nil
 }
 
-// 更新用户 ,empty引用的库"github.com/golang/protobuf/ptypes/empty"
+// update the userInfo ,empty引用的库"github.com/golang/protobuf/ptypes/empty"
 func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) (*empty.Empty, error) {
 	var user model.User
 	result := global.DB.First(&user, req.Id)
@@ -159,7 +159,7 @@ func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) 
 	return &empty.Empty{}, nil
 }
 
-// 检查用户的密码
+// check the user's password
 func (s *UserServer) CheckPassword(ctx context.Context, req *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
 	options := &password.Options{
 		SaltLen:      16,
