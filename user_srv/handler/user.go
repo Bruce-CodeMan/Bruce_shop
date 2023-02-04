@@ -9,6 +9,8 @@ package handler
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 
 	"Bruce_shop/user_srv/global"
@@ -69,4 +71,34 @@ func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*pro
 		resp.Data = append(resp.Data, &userInfoRsp)
 	}
 	return resp, nil
+}
+
+// 通过mobile查询用户
+func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileRequest) (*proto.UserInfoResponse, error) {
+	var user model.User
+	result := global.DB.Where(&model.User{
+		Mobile: req.Mobile,
+	}).First(&user)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	userInfoResp := Model2Response(user)
+	return &userInfoResp, nil
+}
+
+// 通过id查询用户
+func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdRequest) (*proto.UserInfoResponse, error) {
+	var user model.User
+	result := global.DB.First(&user, req.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	userInfoResp := Model2Response(user)
+	return &userInfoResp, nil
 }
