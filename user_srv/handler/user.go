@@ -10,6 +10,7 @@ import (
 	"context"
 	"crypto/sha512"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/anaskhan96/go-password-encoder"
@@ -156,4 +157,20 @@ func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) 
 		return nil, status.Errorf(codes.Internal, result.Error.Error())
 	}
 	return &empty.Empty{}, nil
+}
+
+// 检查用户的密码
+func (s *UserServer) CheckPassword(ctx context.Context, req *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
+	options := &password.Options{
+		SaltLen:      16,
+		Iterations:   100,
+		KeyLen:       32,
+		HashFunction: sha512.New,
+	}
+	passwordInfo := strings.Split(req.EncryptoPassword, "$")
+	check := password.Verify(req.Password, passwordInfo[2], passwordInfo[3], options)
+
+	return &proto.CheckResponse{
+		Success: check,
+	}, nil
 }
