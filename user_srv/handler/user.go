@@ -24,7 +24,9 @@ import (
 	"Bruce_shop/user_srv/proto"
 )
 
-type UserServer struct{}
+type UserServer struct {
+	proto.UnimplementedUserServer
+}
 
 func Model2Response(user model.User) proto.UserInfoResponse {
 	// 在grpc的message中字段有默认值，不能随便赋值nil进去，容易出错
