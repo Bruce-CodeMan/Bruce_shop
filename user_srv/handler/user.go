@@ -10,8 +10,10 @@ import (
 	"context"
 	"crypto/sha512"
 	"fmt"
+	"time"
 
 	"github.com/anaskhan96/go-password-encoder"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -135,4 +137,23 @@ func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) 
 
 	userInfoResp := Model2Response(user)
 	return &userInfoResp, nil
+}
+
+// 更新用户 ,empty引用的库"github.com/golang/protobuf/ptypes/empty"
+func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) (*empty.Empty, error) {
+	var user model.User
+	result := global.DB.First(&user, req.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+	// Go语言将int类型转换成time类型
+	birthDay := time.Unix(int64(req.BirthDay), 0)
+	user.NickName = req.NickName
+	user.Birthday = &birthDay
+	user.Gender = req.Gender
+	result = global.DB.Save(&user)
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+	return &empty.Empty{}, nil
 }
