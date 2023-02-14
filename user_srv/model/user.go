@@ -1,7 +1,7 @@
 /*
  * @Date: 2023-02-03 14:08:25
  * @Author: Bruce
- * @Description:
+ * @Description: User Model
  */
 package model
 

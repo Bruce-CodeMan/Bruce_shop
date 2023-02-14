@@ -1,7 +1,7 @@
 /*
  * @Date: 2023-02-03 16:47:48
  * @Author: Bruce
- * @Description:
+ * @Description: UserServer's methods
  */
 
 package handler
@@ -28,6 +28,7 @@ type UserServer struct {
 	proto.UnimplementedUserServer
 }
 
+// Model2Response Convert the object of user Model into the object of proto
 func Model2Response(user model.User) proto.UserInfoResponse {
 	// 在grpc的message中字段有默认值，不能随便赋值nil进去，容易出错
 	// 要搞清楚，哪些字段是有默认值
@@ -45,6 +46,7 @@ func Model2Response(user model.User) proto.UserInfoResponse {
 	return userInfoRsp
 }
 
+// Paginate Get the data according to page/pageSize parameters
 func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if page == 0 {
@@ -62,8 +64,8 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-// get the userInfo
-func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*proto.UserListResponse, error) {
+// GetUserList Query the whole userInfo
+func (s *UserServer) GetUserList(_ context.Context, req *proto.PageInfo) (*proto.UserListResponse, error) {
 	var users []model.User
 	result := global.DB.Find(&users)
 	if result.Error != nil {
@@ -81,8 +83,8 @@ func (s *UserServer) GetUserList(ctx context.Context, req *proto.PageInfo) (*pro
 	return resp, nil
 }
 
-// query the user bu mobile
-func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileRequest) (*proto.UserInfoResponse, error) {
+// GetUserByMobile Query the userInformation according to the user's mobile parameter
+func (s *UserServer) GetUserByMobile(_ context.Context, req *proto.MobileRequest) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.Where(&model.User{
 		Mobile: req.Mobile,
@@ -97,8 +99,8 @@ func (s *UserServer) GetUserByMobile(ctx context.Context, req *proto.MobileReque
 	return &userInfoResp, nil
 }
 
-// query the user by id
-func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdRequest) (*proto.UserInfoResponse, error) {
+// GetUserById Query the userInformation according to the user's id parameter
+func (s *UserServer) GetUserById(_ context.Context, req *proto.IdRequest) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.First(&user, req.Id)
 	if result.RowsAffected == 0 {
@@ -111,8 +113,8 @@ func (s *UserServer) GetUserById(ctx context.Context, req *proto.IdRequest) (*pr
 	return &userInfoResp, nil
 }
 
-// create the user
-func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
+// CreateUser Create a userInfo
+func (s *UserServer) CreateUser(_ context.Context, req *proto.CreateUserInfo) (*proto.UserInfoResponse, error) {
 	var user model.User
 	result := global.DB.Where(&model.User{Mobile: req.Mobile}).First(&user)
 	if result.RowsAffected == 1 {
@@ -142,8 +144,8 @@ func (s *UserServer) CreateUser(ctx context.Context, req *proto.CreateUserInfo) 
 	return &userInfoResp, nil
 }
 
-// update the userInfo ,empty引用的库"github.com/golang/protobuf/ptypes/empty"
-func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) (*empty.Empty, error) {
+// UpdateUser Update the userInfo according to the user's id ,empty引用的库"github.com/golang/protobuf/ptypes/empty"
+func (s *UserServer) UpdateUser(_ context.Context, req *proto.UpdateUserInfo) (*empty.Empty, error) {
 	var user model.User
 	result := global.DB.First(&user, req.Id)
 	if result.RowsAffected == 0 {
@@ -161,8 +163,8 @@ func (s *UserServer) UpdateUser(ctx context.Context, req *proto.UpdateUserInfo) 
 	return &empty.Empty{}, nil
 }
 
-// check the user's password
-func (s *UserServer) CheckPassword(ctx context.Context, req *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
+// CheckPassword check user's password whether is correct according to password parameter
+func (s *UserServer) CheckPassword(_ context.Context, req *proto.PasswordCheckInfo) (*proto.CheckResponse, error) {
 	options := &password.Options{
 		SaltLen:      16,
 		Iterations:   100,
