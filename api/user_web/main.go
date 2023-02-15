@@ -6,10 +6,18 @@
 
 package main
 
-import "Bruce_shop/api/user_web/inintialize"
+import (
+	"Bruce_shop/api/user_web/inintialize"
+	"go.uber.org/zap"
+)
 
 func main() {
+	// Step 1, initialize the logger
 	// Step 1 ,initialize the router
-	Router := inintialize.Routers()
+	inintialize.InitLogger()
+	Router := inintialize.InitRouters()
+
+	zap.S().Info("启动服务器")
+
 	Router.Run()
 }

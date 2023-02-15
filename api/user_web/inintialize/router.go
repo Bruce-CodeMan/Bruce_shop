@@ -11,7 +11,7 @@ import (
 	"Bruce_shop/api/user_web/router"
 )
 
-func Routers() *gin.Engine {
+func InitRouters() *gin.Engine {
 	Router := gin.Default()
 	ApiRouter := Router.Group("/v1")
 	router.InitUserRouter(ApiRouter)
