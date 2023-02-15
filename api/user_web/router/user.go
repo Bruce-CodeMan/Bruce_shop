@@ -6,9 +6,10 @@
 package router
 
 import (
-	"Bruce_shop/api/user_web/api"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"Bruce_shop/api/user_web/api"
 )
 
 func InitUserRouter(Router *gin.RouterGroup) {

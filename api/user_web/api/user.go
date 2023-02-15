@@ -9,12 +9,12 @@ package api
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc/codes"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 

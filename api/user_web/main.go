@@ -7,8 +7,9 @@
 package main
 
 import (
-	"Bruce_shop/api/user_web/inintialize"
 	"go.uber.org/zap"
+
+	"Bruce_shop/api/user_web/inintialize"
 )
 
 func main() {
