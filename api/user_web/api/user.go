@@ -7,16 +7,17 @@
 package api
 
 import (
+	"Bruce_shop/api/user_web/global/response"
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"net/http"
+	"time"
 
 	"Bruce_shop/api/user_web/proto"
 )
@@ -65,13 +66,16 @@ func GetUserList(ctx *gin.Context) {
 	}
 	result := make([]interface{}, 0)
 	for _, v := range resp.Data {
-		data := make(map[string]interface{})
-		data["id"] = v.Id
-		data["name"] = v.NickName
-		data["birthday"] = v.BirthDay
-		data["gender"] = v.Gender
-		data["mobile"] = v.Mobile
-		result = append(result, data)
+		//data := make(map[string]interface{})
+		user := response.UserResponse{
+			Id:       v.Id,
+			NickName: v.NickName,
+			Birthday: time.Unix(int64(v.BirthDay), 0).Format("2006-01-02"),
+			//Birthday: time.Unix(int64(v.BirthDay), 0),
+			Gender: v.Gender,
+			Mobile: v.Mobile,
+		}
+		result = append(result, user)
 	}
 	ctx.JSON(http.StatusOK, result)
 }
