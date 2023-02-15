@@ -19,9 +19,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 
-	"Bruce_shop/user_srv/global"
-	"Bruce_shop/user_srv/model"
-	"Bruce_shop/user_srv/proto"
+	"Bruce_shop/srvs/user_srv/global"
+	"Bruce_shop/srvs/user_srv/model"
+	"Bruce_shop/srvs/user_srv/proto"
 )
 
 type UserServer struct {

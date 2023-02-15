@@ -1,17 +1,19 @@
 /**
  * @Author: Bruce
- * @Description:
+ * @Description: test the serverAPI
  * @Date: 2023/2/15 9:51 AM
  */
 
 package main
 
 import (
-	"Bruce_shop/user_srv/proto"
 	"context"
 	"fmt"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"Bruce_shop/srvs/user_srv/proto"
 )
 
 var (
@@ -100,9 +102,9 @@ func TestUpdateUser() {
 
 func main() {
 	Init()
-	//TestGetUserList()
+	TestGetUserList()
 	//TestGetUserByMobile()
 	//TestGetUserById()
-	TestUpdateUser()
+	//TestUpdateUser()
 	defer conn.Close()
 }

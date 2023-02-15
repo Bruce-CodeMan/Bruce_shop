@@ -6,7 +6,6 @@
 package main
 
 import (
-	"Bruce_shop/user_srv/model"
 	"crypto/sha512"
 	"fmt"
 	"log"
@@ -19,6 +18,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+
+	"Bruce_shop/srvs/user_srv/model"
 )
 
 // genMd5 Generate MD5

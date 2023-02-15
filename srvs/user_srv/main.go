@@ -7,8 +7,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"Bruce_shop/user_srv/handler"
-	"Bruce_shop/user_srv/proto"
+	"Bruce_shop/srvs/user_srv/handler"
+	"Bruce_shop/srvs/user_srv/proto"
 )
 
 func main() {
