@@ -102,7 +102,7 @@ func TestUpdateUser() {
 
 func main() {
 	Init()
-	TestGetUserList()
+	//TestGetUserList()
 	//TestGetUserByMobile()
 	//TestGetUserById()
 	//TestUpdateUser()
