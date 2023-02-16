@@ -26,5 +26,5 @@ func main() {
 
 	zap.S().Info("启动服务器")
 
-	Router.Run()
+	_ = Router.Run()
 }
