@@ -25,6 +25,7 @@ import (
 	"Bruce_shop/api/user_web/proto"
 )
 
+// HandleGrpcErrorToHttp convert the gRPC response code to the Http response
 func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 	// 将gRPC的code转换成Http的状态码
 	if err != nil {
@@ -52,6 +53,7 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 	}
 }
 
+// GetUserList get the user list info by pn/pSize in the browser
 func GetUserList(ctx *gin.Context) {
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -61,7 +63,7 @@ func GetUserList(ctx *gin.Context) {
 	c := proto.NewUserClient(conn)
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
-	pSize := ctx.DefaultQuery("psize", "10")
+	pSize := ctx.DefaultQuery("pSize", "10")
 	pSizeInt, _ := strconv.Atoi(pSize)
 	resp, err := c.GetUserList(context.Background(), &proto.PageInfo{
 		Pn:    uint32(pnInt),
