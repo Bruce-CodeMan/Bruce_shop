@@ -7,19 +7,21 @@
 package api
 
 import (
-	"Bruce_shop/api/user_web/global"
-	"Bruce_shop/api/user_web/global/response"
 	"context"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"net/http"
-	"time"
 
+	"Bruce_shop/api/user_web/global"
+	"Bruce_shop/api/user_web/global/response"
 	"Bruce_shop/api/user_web/proto"
 )
 
@@ -57,7 +59,14 @@ func GetUserList(ctx *gin.Context) {
 			"msg", err.Error())
 	}
 	c := proto.NewUserClient(conn)
-	resp, err := c.GetUserList(context.Background(), &proto.PageInfo{Pn: 0, PSize: 0})
+	pn := ctx.DefaultQuery("pn", "0")
+	pnInt, _ := strconv.Atoi(pn)
+	pSize := ctx.DefaultQuery("psize", "10")
+	pSizeInt, _ := strconv.Atoi(pSize)
+	resp, err := c.GetUserList(context.Background(), &proto.PageInfo{
+		Pn:    uint32(pnInt),
+		PSize: uint32(pSizeInt),
+	})
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 查询 [用户列表信息失败]")
 		HandleGrpcErrorToHttp(err, ctx)
