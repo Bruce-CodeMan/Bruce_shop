@@ -120,5 +120,51 @@ func PasswordLogin(ctx *gin.Context) {
 		HandleValidatorError(ctx, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, "success")
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
+			"msg", err.Error())
+	}
+	c := proto.NewUserClient(conn)
+
+	// login logic
+	if resp, err := c.GetUserByMobile(context.Background(), &proto.MobileRequest{
+		Mobile: passwordLoginForm.Mobile,
+	}); err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				ctx.JSON(http.StatusBadRequest, map[string]string{
+					"mobile": "用户不存在",
+				})
+			default:
+				ctx.JSON(http.StatusInternalServerError, map[string]string{
+					"msg": "登录失败",
+				})
+			}
+			return
+		}
+	} else {
+		// check the user's password
+		if passwordResp, passwordErr := c.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+			Password:         passwordLoginForm.Password,
+			EncryptoPassword: resp.Password,
+		}); passwordErr != nil {
+			ctx.JSON(http.StatusInternalServerError, map[string]string{
+				"password": "登录失败",
+			})
+		} else {
+			if passwordResp.Success {
+				ctx.JSON(http.StatusOK, map[string]string{
+					"msg": "登录成功",
+				})
+			} else {
+				ctx.JSON(http.StatusBadRequest, map[string]string{
+					"msg": "登录失败",
+				})
+			}
+		}
+	}
+
 }
