@@ -6,11 +6,8 @@
 package inintialize
 
 import (
-	"fmt"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
 	"Bruce_shop/api/user_web/global"
+	"github.com/spf13/viper"
 )
 
 func GetEnvInfo(env string) bool {
@@ -26,16 +23,10 @@ func InitConfig() {
 	}
 	v := viper.New()
 	v.SetConfigFile(configFileName)
-	fmt.Println(configFileName)
 	if err := v.ReadInConfig(); err != nil {
 		panic(err)
 	}
 	if err := v.Unmarshal(global.ServerConfig); err != nil {
 		panic(err)
 	}
-
-	fmt.Println(global.ServerConfig.Name)
-	fmt.Println(global.ServerConfig.Host)
-	fmt.Println(global.ServerConfig.Port)
-	zap.S().Infof("配置信息:&v", global.ServerConfig)
 }
