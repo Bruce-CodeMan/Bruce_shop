@@ -5,8 +5,13 @@
  */
 package global
 
-import "Bruce_shop/api/user_web/config"
+import (
+	ut "github.com/go-playground/universal-translator"
+
+	"Bruce_shop/api/user_web/config"
+)
 
 var (
 	ServerConfig = &config.ServerConfig{}
+	Trans        ut.Translator
 )

@@ -7,10 +7,13 @@
 package api
 
 import (
+	"Bruce_shop/api/user_web/forms"
 	"context"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -24,6 +27,27 @@ import (
 	"Bruce_shop/api/user_web/global/response"
 	"Bruce_shop/api/user_web/proto"
 )
+
+func removeTopStruct(fileds map[string]string) map[string]string {
+	rsp := map[string]string{}
+	for field, err := range fileds {
+		rsp[field[strings.Index(field, ".")+1:]] = err
+	}
+	return rsp
+}
+
+func HandleValidatorError(c *gin.Context, err error) {
+	errs, ok := err.(validator.ValidationErrors)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": err.Error(),
+		})
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": removeTopStruct(errs.Translate(global.Trans)),
+	})
+	return
+}
 
 // HandleGrpcErrorToHttp convert the gRPC response code to the Http response
 func HandleGrpcErrorToHttp(err error, c *gin.Context) {
@@ -86,4 +110,15 @@ func GetUserList(ctx *gin.Context) {
 		result = append(result, user)
 	}
 	ctx.JSON(http.StatusOK, result)
+}
+
+// PasswordLogin User login the project by password/nickname
+func PasswordLogin(ctx *gin.Context) {
+
+	passwordLoginForm := forms.PasswordLoginForms{}
+	if err := ctx.ShouldBindJSON(&passwordLoginForm); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, "success")
 }
