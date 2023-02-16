@@ -14,8 +14,10 @@ import (
 
 func main() {
 	// Step 1, initialize the logger
-	// Step 1 ,initialize the router
+	// 		   initialize the router
+	// 		   initialize the config
 	inintialize.InitLogger()
+	inintialize.InitConfig()
 	Router := inintialize.InitRouters()
 
 	zap.S().Info("启动服务器")

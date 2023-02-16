@@ -7,6 +7,7 @@
 package api
 
 import (
+	"Bruce_shop/api/user_web/global"
 	"Bruce_shop/api/user_web/global/response"
 	"context"
 	"fmt"
@@ -50,9 +51,7 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 }
 
 func GetUserList(ctx *gin.Context) {
-	ip := "127.0.0.1"
-	port := 50051
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
 			"msg", err.Error())
@@ -66,14 +65,12 @@ func GetUserList(ctx *gin.Context) {
 	}
 	result := make([]interface{}, 0)
 	for _, v := range resp.Data {
-		//data := make(map[string]interface{})
 		user := response.UserResponse{
 			Id:       v.Id,
 			NickName: v.NickName,
 			Birthday: time.Unix(int64(v.BirthDay), 0).Format("2006-01-02"),
-			//Birthday: time.Unix(int64(v.BirthDay), 0),
-			Gender: v.Gender,
-			Mobile: v.Mobile,
+			Gender:   v.Gender,
+			Mobile:   v.Mobile,
 		}
 		result = append(result, user)
 	}
