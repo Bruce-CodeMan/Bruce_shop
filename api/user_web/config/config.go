@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description:
+ * @Description: convert the config yaml to the struct
  * @Date: 2023/2/16 9:03 AM
  */
 package config

@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description:
+ * @Description: Define some global variables
  * @Date: 2023/2/16 9:47 AM
  */
 package global

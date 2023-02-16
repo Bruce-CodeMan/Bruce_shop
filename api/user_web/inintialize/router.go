@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description:
+ * @Description: Initialize the router config
  * @Date: 2023/2/15 2:09 PM
  */
 package inintialize
@@ -11,6 +11,7 @@ import (
 	"Bruce_shop/api/user_web/router"
 )
 
+// InitRouters Initialize the router settings
 func InitRouters() *gin.Engine {
 	Router := gin.Default()
 	ApiRouter := Router.Group("/v1")
