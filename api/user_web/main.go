@@ -7,7 +7,9 @@
 package main
 
 import (
+	"Bruce_shop/api/user_web/global"
 	"github.com/gin-gonic/gin/binding"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
@@ -30,6 +32,12 @@ func main() {
 	// Step2, Register validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("mobile", bruceValidator.ValidateMobile)
+		_ = v.RegisterTranslation("mobile", global.Trans, func(ut ut.Translator) error {
+			return ut.Add("mobile", "{0} 非法的手机号码!", true) // see universal-translator for details
+		}, func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("mobile", fe.Field())
+			return t
+		})
 	}
 
 	zap.S().Info("启动服务器")
