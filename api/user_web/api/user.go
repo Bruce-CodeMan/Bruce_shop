@@ -8,8 +8,11 @@ package api
 
 import (
 	"Bruce_shop/api/user_web/forms"
+	"Bruce_shop/api/user_web/middlewares"
+	"Bruce_shop/api/user_web/models"
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
@@ -156,8 +159,30 @@ func PasswordLogin(ctx *gin.Context) {
 			})
 		} else {
 			if passwordResp.Success {
-				ctx.JSON(http.StatusOK, map[string]string{
-					"msg": "登录成功",
+				// Generate token
+				j := middlewares.NewJWT()
+				claims := models.CustomClaims{
+					Id:          uint(resp.Id),
+					NickName:    resp.NickName,
+					AuthorityId: uint(resp.Role),
+					StandardClaims: jwt.StandardClaims{
+						NotBefore: time.Now().Unix(),               // 签名的生效时间
+						ExpiresAt: time.Now().Unix() + 60*60*24*30, // 过期时间
+						Issuer:    "Bruce",                         // 签发机构
+					},
+				}
+				token, err := j.CreateToken(claims)
+				if err != nil {
+					ctx.JSON(http.StatusInternalServerError, gin.H{
+						"msg": "生成token失败",
+					})
+				}
+
+				ctx.JSON(http.StatusOK, gin.H{
+					"id":        resp.Id,
+					"nickName":  resp.NickName,
+					"token":     token,
+					"expiredAt": (time.Now().Unix() + 60*60*24*60) * 1000,
 				})
 			} else {
 				ctx.JSON(http.StatusBadRequest, map[string]string{
