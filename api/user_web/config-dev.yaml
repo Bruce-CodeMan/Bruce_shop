@@ -2,4 +2,9 @@ name: "user-web"
 user_srv:
   host: '127.0.0.1'
   port: 50051
-
+sms:
+  key: ""
+  secret: ""
+redis:
+  host: "42.192.145.3"
+  port: 6379

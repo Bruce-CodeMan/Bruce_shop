@@ -7,11 +7,17 @@
 package api
 
 import (
+	"Bruce_shop/api/user_web/forms"
+	"Bruce_shop/api/user_web/global"
+	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math/rand"
+	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 func GenerateSmsCode(width int) string {
@@ -26,7 +32,19 @@ func GenerateSmsCode(width int) string {
 }
 
 func SendSms(ctx *gin.Context) {
-	fmt.Println("发送的短信验证码为:", GenerateSmsCode(6))
-
-	// 将验证码保存起来
+	smsForm := forms.SendSmsForm{}
+	if err := ctx.ShouldBindJSON(&smsForm); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
+	smsCode := GenerateSmsCode(6)
+	fmt.Println("发送的短信验证码为:", smsCode)
+	rdb := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
+	})
+	rdb.Set(context.Background(), smsForm.Mobile, smsCode, 120*time.Second)
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":     "发送成功",
+		"smsCode": smsCode,
+	})
 }

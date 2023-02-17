@@ -14,6 +14,8 @@ type ServerConfig struct {
 	Name        string        `mapstructure:"name"`
 	UserSrvInfo UserSrvConfig `mapstructure:"user_srv"`
 	JwtInfo     JWTConfig     `mapstructure:"jwt"`
+	AliSmsInfo  AliSmsConfig  `mapstructure:"sms"`
+	RedisInfo   RedisConfig   `mapstructure:"redis"`
 }
 
 type JWTConfig struct {
