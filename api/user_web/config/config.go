@@ -13,4 +13,9 @@ type UserSrvConfig struct {
 type ServerConfig struct {
 	Name          string `mapstructure:"name"`
 	UserSrvConfig `mapstructure:"user_srv"`
+	JWTConfig     `mapstructure:"jwt"`
+}
+
+type JWTConfig struct {
+	SigningKey string `mapstructure:"key"`
 }
