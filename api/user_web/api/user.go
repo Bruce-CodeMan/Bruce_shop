@@ -12,6 +12,7 @@ import (
 	"Bruce_shop/api/user_web/models"
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"strconv"
 	"strings"
@@ -203,5 +204,77 @@ func PasswordLogin(ctx *gin.Context) {
 			}
 		}
 	}
+
+}
+
+// Register User can register the system by mobile
+func Register(ctx *gin.Context) {
+	// User Register
+	registerForms := forms.RegisterForms{}
+	if err := ctx.ShouldBindJSON(&registerForms); err != nil {
+		HandleValidatorError(ctx, err)
+		return
+	}
+
+	// Code from redis database to check whether is correct or not
+	rdb := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
+	})
+	value, err := rdb.Get(context.Background(), registerForms.Mobile).Result()
+	if err == redis.Nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": "验证码错误",
+		})
+		return
+	} else {
+		if value != registerForms.Code {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code": "验证码错误",
+			})
+		}
+	}
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		zap.S().Errorw("[Register] 连接 [用户服务失效]",
+			"msg", err.Error())
+	}
+	c := proto.NewUserClient(conn)
+	resp, err := c.CreateUser(context.Background(), &proto.CreateUserInfo{
+		NickName: registerForms.Mobile,
+		Mobile:   registerForms.Mobile,
+		Password: registerForms.Password,
+	})
+	if err != nil {
+		zap.S().Errorf("[Register]新建用户失败 %s", err.Error())
+		HandleValidatorError(ctx, err)
+		return
+	}
+
+	// Create the JWT
+	j := middlewares.NewJWT()
+	claims := models.CustomClaims{
+		Id:          uint(resp.Id),
+		NickName:    resp.NickName,
+		AuthorityId: uint(resp.Role),
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix(),
+			ExpiresAt: time.Now().Unix() + 60*60*60*24*30,
+			Issuer:    "Bruce",
+		},
+	}
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成token失败",
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":    "创建用户成功",
+		"id":     resp.Id,
+		"mobile": resp.Mobile,
+		"token":  token,
+	})
 
 }
