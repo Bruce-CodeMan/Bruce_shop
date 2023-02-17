@@ -11,11 +11,21 @@ type UserSrvConfig struct {
 }
 
 type ServerConfig struct {
-	Name          string `mapstructure:"name"`
-	UserSrvConfig `mapstructure:"user_srv"`
-	JWTConfig     `mapstructure:"jwt"`
+	Name        string        `mapstructure:"name"`
+	UserSrvInfo UserSrvConfig `mapstructure:"user_srv"`
+	JwtInfo     JWTConfig     `mapstructure:"jwt"`
 }
 
 type JWTConfig struct {
 	SigningKey string `mapstructure:"key"`
+}
+
+type AliSmsConfig struct {
+	ApiKet    string `mapstructure:"key"`
+	ApiSecret string `mapstructure:"secret"`
+}
+
+type RedisConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }

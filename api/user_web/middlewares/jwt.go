@@ -66,7 +66,7 @@ var (
 
 func NewJWT() *JWT {
 	return &JWT{
-		[]byte(global.ServerConfig.SigningKey), //可以设置过期时间
+		[]byte(global.ServerConfig.JwtInfo.SigningKey), //可以设置过期时间
 	}
 }
 
