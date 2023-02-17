@@ -6,6 +6,7 @@
 package inintialize
 
 import (
+	"Bruce_shop/api/user_web/middlewares"
 	"github.com/gin-gonic/gin"
 
 	"Bruce_shop/api/user_web/router"
@@ -14,6 +15,8 @@ import (
 // InitRouters Initialize the router settings
 func InitRouters() *gin.Engine {
 	Router := gin.Default()
+	// 配置跨域请求
+	Router.Use(middlewares.Cors())
 	ApiRouter := Router.Group("/v1")
 	router.InitUserRouter(ApiRouter)
 	return Router
