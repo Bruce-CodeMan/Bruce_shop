@@ -6,9 +6,9 @@
 package inintialize
 
 import (
-	"Bruce_shop/api/user_web/middlewares"
 	"github.com/gin-gonic/gin"
 
+	"Bruce_shop/api/user_web/middlewares"
 	"Bruce_shop/api/user_web/router"
 )
 
