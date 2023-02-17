@@ -12,12 +12,13 @@ import (
 	"Bruce_shop/api/user_web/models"
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -82,11 +83,15 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 
 // GetUserList get the user list info by pn/pSize in the browser
 func GetUserList(ctx *gin.Context) {
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
 			"msg", err.Error())
 	}
+	claims, _ := ctx.Get("claims")
+	currentUser := claims.(*models.CustomClaims)
+	zap.S().Infof("访问用户ID: %d", currentUser.Id)
 	c := proto.NewUserClient(conn)
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
