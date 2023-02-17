@@ -136,6 +136,13 @@ func PasswordLogin(ctx *gin.Context) {
 	}
 	c := proto.NewUserClient(conn)
 
+	// true 代表每次证明之后都关闭
+	if !store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, true) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"captcha": "验证码错误",
+		})
+		return
+	}
 	// login logic
 	if resp, err := c.GetUserByMobile(context.Background(), &proto.MobileRequest{
 		Mobile: passwordLoginForm.Mobile,
