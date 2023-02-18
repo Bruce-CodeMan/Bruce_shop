@@ -12,6 +12,7 @@ import (
 	"Bruce_shop/api/user_web/models"
 	"context"
 	"fmt"
+	"github.com/hashicorp/consul/api"
 	"github.com/redis/go-redis/v9"
 	"net/http"
 	"strconv"
@@ -84,7 +85,34 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 
 // GetUserList get the user list info by pn/pSize in the browser
 func GetUserList(ctx *gin.Context) {
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port),
+	// 从注册中心获取用户服务的信息
+	cfg := api.DefaultConfig()
+	consulInfo := global.ServerConfig.ConsulInfo
+	cfg.Address = fmt.Sprintf("%s:%d", consulInfo.Host, consulInfo.Port)
+
+	userSrvHost := ""
+	userSrvPort := 0
+	client, err := api.NewClient(cfg)
+	if err != nil {
+		panic(err)
+	}
+	data, err := client.Agent().ServicesWithFilter(fmt.Sprintf(`Service == %s`, global.ServerConfig.UserSrvInfo.Name))
+	if err != nil {
+		panic(err)
+	}
+	for _, v := range data {
+		userSrvHost = v.Address
+		userSrvPort = v.Port
+		break
+	}
+
+	if userSrvHost == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"msg": "用户服务不可达",
+		})
+	}
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", userSrvHost, userSrvPort),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
