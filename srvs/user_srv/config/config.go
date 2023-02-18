@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description: 描述
+ * @Description: gRPC config structs connection .yaml
  * @Date: 2023-02-18 12:09
  */
 
