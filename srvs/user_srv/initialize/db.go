@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description: 描述
+ * @Description: initialize the db ,it determines the global variables
  * @Date: 2023-02-18 12:30
  */
 
