@@ -32,5 +32,4 @@ func InitConfig() {
 	if err := v.Unmarshal(&global.ServerConfig); err != nil {
 		panic(err)
 	}
-
 }
