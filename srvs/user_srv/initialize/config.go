@@ -6,7 +6,11 @@
 
 package initialize
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+
+	"Bruce_shop/srvs/user_srv/global"
+)
 
 func GetEnvInfo(env string) bool {
 	viper.AutomaticEnv()
@@ -16,14 +20,17 @@ func GetEnvInfo(env string) bool {
 func InitConfig() {
 	// 从配置文件中读取相对应的配置
 	debug := GetEnvInfo("BRUCE_SHOP")
-	configFileName := "/srvs/user_srv/config-dev.yaml"
+	configFileName := "srvs/user_srv/config-dev.yaml"
 	if debug {
-		configFileName = "/srvs/user_srv/config-dev.yaml"
+		configFileName = "srvs/user_srv/config-dev.yaml"
 	}
 	v := viper.New()
 	v.SetConfigFile(configFileName)
 	if err := v.ReadInConfig(); err != nil {
 		panic(err)
 	}
-	
+	if err := v.Unmarshal(&global.ServerConfig); err != nil {
+		panic(err)
+	}
+
 }
