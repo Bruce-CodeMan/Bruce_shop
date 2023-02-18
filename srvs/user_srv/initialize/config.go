@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description: 描述
+ * @Description: initialize the config ,read the config ingo from the config-*.yaml it determines the env variable
  * @Date: 2023-02-18 12:16
  */
 
