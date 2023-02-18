@@ -1,6 +1,6 @@
 /**
  * @Author: Bruce
- * @Description: 描述
+ * @Description: initialize the logger using zap package,not to log package
  * @Date: 2023-02-18 12:42
  */
 
