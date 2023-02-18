@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go.uber.org/zap"
 	"net"
 
 	"google.golang.org/grpc"
@@ -22,7 +23,7 @@ func main() {
 	initialize.InitDB()
 
 	flag.Parse()
-	fmt.Printf("ip: %s, port: %d\n", *IP, *PORT)
+	zap.S().Infof("ip: %s, port: %d\n", *IP, *PORT)
 	server := grpc.NewServer()
 	proto.RegisterUserServer(server, &handler.UserServer{})
 
