@@ -7,30 +7,26 @@
 package api
 
 import (
-	"Bruce_shop/api/user_web/forms"
-	"Bruce_shop/api/user_web/middlewares"
-	"Bruce_shop/api/user_web/models"
 	"context"
 	"fmt"
-	"github.com/hashicorp/consul/api"
-	"github.com/redis/go-redis/v9"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-playground/validator/v10"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
+	"Bruce_shop/api/user_web/forms"
 	"Bruce_shop/api/user_web/global"
 	"Bruce_shop/api/user_web/global/response"
+	"Bruce_shop/api/user_web/middlewares"
+	"Bruce_shop/api/user_web/models"
 	"Bruce_shop/api/user_web/proto"
 )
 
@@ -85,48 +81,15 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 
 // GetUserList get the user list info by pn/pSize in the browser
 func GetUserList(ctx *gin.Context) {
-	// 从注册中心获取用户服务的信息
-	cfg := api.DefaultConfig()
-	consulInfo := global.ServerConfig.ConsulInfo
-	cfg.Address = fmt.Sprintf("%s:%d", consulInfo.Host, consulInfo.Port)
-
-	userSrvHost := ""
-	userSrvPort := 0
-	client, err := api.NewClient(cfg)
-	if err != nil {
-		panic(err)
-	}
-	data, err := client.Agent().ServicesWithFilter(fmt.Sprintf(`Service == %s`, global.ServerConfig.UserSrvInfo.Name))
-	if err != nil {
-		panic(err)
-	}
-	for _, v := range data {
-		userSrvHost = v.Address
-		userSrvPort = v.Port
-		break
-	}
-
-	if userSrvHost == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"msg": "用户服务不可达",
-		})
-	}
-
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", userSrvHost, userSrvPort),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
-			"msg", err.Error())
-	}
 	claims, _ := ctx.Get("claims")
 	currentUser := claims.(*models.CustomClaims)
 	zap.S().Infof("访问用户ID: %d", currentUser.Id)
-	c := proto.NewUserClient(conn)
+
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
 	pSize := ctx.DefaultQuery("pSize", "10")
 	pSizeInt, _ := strconv.Atoi(pSize)
-	resp, err := c.GetUserList(context.Background(), &proto.PageInfo{
+	resp, err := global.UserSrvClient.GetUserList(context.Background(), &proto.PageInfo{
 		Pn:    uint32(pnInt),
 		PSize: uint32(pSizeInt),
 	})
@@ -158,13 +121,6 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.S().Errorw("[GetUserList] 连接 [用户服务失效]",
-			"msg", err.Error())
-	}
-	c := proto.NewUserClient(conn)
-
 	// true 代表每次证明之后都关闭
 	if !store.Verify(passwordLoginForm.CaptchaId, passwordLoginForm.Captcha, true) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -173,7 +129,7 @@ func PasswordLogin(ctx *gin.Context) {
 		return
 	}
 	// login logic
-	if resp, err := c.GetUserByMobile(context.Background(), &proto.MobileRequest{
+	if resp, err := global.UserSrvClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
 		Mobile: passwordLoginForm.Mobile,
 	}); err != nil {
 		if e, ok := status.FromError(err); ok {
@@ -191,7 +147,7 @@ func PasswordLogin(ctx *gin.Context) {
 		}
 	} else {
 		// check the user's password
-		if passwordResp, passwordErr := c.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+		if passwordResp, passwordErr := global.UserSrvClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
 			Password:         passwordLoginForm.Password,
 			EncryptoPassword: resp.Password,
 		}); passwordErr != nil {
@@ -261,14 +217,8 @@ func Register(ctx *gin.Context) {
 			})
 		}
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", global.ServerConfig.UserSrvInfo.Host, global.ServerConfig.UserSrvInfo.Port),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		zap.S().Errorw("[Register] 连接 [用户服务失效]",
-			"msg", err.Error())
-	}
-	c := proto.NewUserClient(conn)
-	resp, err := c.CreateUser(context.Background(), &proto.CreateUserInfo{
+
+	resp, err := global.UserSrvClient.CreateUser(context.Background(), &proto.CreateUserInfo{
 		NickName: registerForms.Mobile,
 		Mobile:   registerForms.Mobile,
 		Password: registerForms.Password,

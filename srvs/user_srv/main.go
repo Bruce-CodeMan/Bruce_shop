@@ -51,7 +51,7 @@ func main() {
 		GRPC:                           "127.0.0.1:50051",
 		Timeout:                        "5s",
 		Interval:                       "5s",
-		DeregisterCriticalServiceAfter: "10s",
+		DeregisterCriticalServiceAfter: "400s",
 	}
 	// 生成注册对象
 	registration := new(api.AgentServiceRegistration)

@@ -22,12 +22,14 @@ func main() {
 	// 		   initialize the router
 	// 		   initialize the config
 	// 		   initialize the translation
+	//     	   initialize the srv_conn
 	inintialize.InitLogger()
 	inintialize.InitConfig()
 	Router := inintialize.InitRouters()
 	if err := inintialize.InitTrans("en"); err != nil {
 		panic(err)
 	}
+	inintialize.InitSrvConn()
 
 	// Step2, Register validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
