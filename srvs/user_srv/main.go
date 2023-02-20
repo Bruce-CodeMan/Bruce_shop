@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/hashicorp/consul/api"
+	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -15,20 +16,23 @@ import (
 	"Bruce_shop/srvs/user_srv/handler"
 	"Bruce_shop/srvs/user_srv/initialize"
 	"Bruce_shop/srvs/user_srv/proto"
+	"Bruce_shop/srvs/user_srv/utils"
 )
 
 func main() {
 	IP := flag.String("ip", "0.0.0.0", "ip")
-	PORT := flag.Int("port", 50051, "port")
+	PORT := flag.Int("port", 0, "port")
 
 	// initialize
 	initialize.InitLogger()
 	initialize.InitConfig()
 	initialize.InitDB()
-	zap.S().Info(global.ServerConfig)
-
 	flag.Parse()
+	if *PORT == 0 {
+		*PORT, _ = utils.GetFreePort()
+	}
 	zap.S().Infof("ip: %s, port: %d\n", *IP, *PORT)
+	zap.S().Info(global.ServerConfig)
 	server := grpc.NewServer()
 	proto.RegisterUserServer(server, &handler.UserServer{})
 
@@ -48,18 +52,19 @@ func main() {
 		panic(err)
 	}
 	check := &api.AgentServiceCheck{
-		GRPC:                           "127.0.0.1:50051",
+		GRPC:                           fmt.Sprintf("192.168.182.129:%d", *PORT),
 		Timeout:                        "5s",
 		Interval:                       "5s",
-		DeregisterCriticalServiceAfter: "400s",
+		DeregisterCriticalServiceAfter: "15s",
 	}
 	// 生成注册对象
 	registration := new(api.AgentServiceRegistration)
 	registration.Name = global.ServerConfig.Name
-	registration.ID = global.ServerConfig.Name
+	serviceID := fmt.Sprintf("%s", uuid.NewV4())
+	registration.ID = serviceID
 	registration.Port = *PORT
 	registration.Tags = []string{"Bruce", "Hsu"}
-	registration.Address = "127.0.0.1"
+	registration.Address = "192.168.182.129"
 	registration.Check = check
 
 	err = client.Agent().ServiceRegister(registration)
