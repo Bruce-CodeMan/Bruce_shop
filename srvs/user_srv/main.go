@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	uuid "github.com/satori/go.uuid"
 	"net"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -32,7 +32,6 @@ func main() {
 		*PORT, _ = utils.GetFreePort()
 	}
 	zap.S().Infof("ip: %s, port: %d\n", *IP, *PORT)
-	zap.S().Info(global.ServerConfig)
 	server := grpc.NewServer()
 	proto.RegisterUserServer(server, &handler.UserServer{})
 
@@ -52,7 +51,7 @@ func main() {
 		panic(err)
 	}
 	check := &api.AgentServiceCheck{
-		GRPC:                           fmt.Sprintf("192.168.182.129:%d", *PORT),
+		GRPC:                           fmt.Sprintf("192.168.2.212:%d", *PORT),
 		Timeout:                        "5s",
 		Interval:                       "5s",
 		DeregisterCriticalServiceAfter: "15s",
@@ -64,7 +63,7 @@ func main() {
 	registration.ID = serviceID
 	registration.Port = *PORT
 	registration.Tags = []string{"Bruce", "Hsu"}
-	registration.Address = "192.168.182.129"
+	registration.Address = "192.168.2.212"
 	registration.Check = check
 
 	err = client.Agent().ServiceRegister(registration)
