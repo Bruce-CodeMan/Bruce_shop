@@ -14,6 +14,7 @@ type UserSrvConfig struct {
 
 type ServerConfig struct {
 	Name        string        `mapstructure:"name"`
+	Port        int           `mapstructure:"port"`
 	UserSrvInfo UserSrvConfig `mapstructure:"user_srv"`
 	JwtInfo     JWTConfig     `mapstructure:"jwt"`
 	AliSmsInfo  AliSmsConfig  `mapstructure:"sms"`

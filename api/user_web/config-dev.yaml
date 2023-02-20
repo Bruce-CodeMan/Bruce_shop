@@ -12,3 +12,4 @@ redis:
 consul:
   host: '192.168.182.129'
   port: 8500
+port: 8080

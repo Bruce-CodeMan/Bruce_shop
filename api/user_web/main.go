@@ -7,6 +7,8 @@
 package main
 
 import (
+	"Bruce_shop/api/user_web/utils"
+	"fmt"
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -31,7 +33,13 @@ func main() {
 	}
 	inintialize.InitSrvConn()
 
-	// Step2, Register validator
+	port, err := utils.GetFreePort()
+	if err != nil {
+		zap.S().Info("获取动态端口号出错")
+		return
+	}
+	global.ServerConfig.Port = port
+	// Step 2, Register validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("mobile", bruceValidator.ValidateMobile)
 		_ = v.RegisterTranslation("mobile", global.Trans, func(ut ut.Translator) error {
@@ -41,8 +49,5 @@ func main() {
 			return t
 		})
 	}
-
-	zap.S().Info("启动服务器")
-
-	_ = Router.Run()
+	_ = Router.Run(fmt.Sprintf(":%d", global.ServerConfig.Port))
 }
