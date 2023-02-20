@@ -7,12 +7,12 @@
 package main
 
 import (
-	"Bruce_shop/api/user_web/global"
 	"github.com/gin-gonic/gin/binding"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
+	"Bruce_shop/api/user_web/global"
 	"Bruce_shop/api/user_web/inintialize"
 	bruceValidator "Bruce_shop/api/user_web/validator"
 )
