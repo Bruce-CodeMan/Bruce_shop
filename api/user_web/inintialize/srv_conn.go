@@ -28,11 +28,6 @@ func InitSrvConn() {
 	if err != nil {
 		zap.S().Fatal("[InitSrvConn] 连接 失败")
 	}
-	defer func() {
-		if err = userConn.Close(); err != nil {
-			panic(err)
-		}
-	}()
 	userSrvClient := proto.NewUserClient(userConn)
 	global.UserSrvClient = userSrvClient
 }
