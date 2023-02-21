@@ -5,6 +5,9 @@ import (
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/hashicorp/consul/api"
 	"go.uber.org/zap"
@@ -71,8 +74,20 @@ func main() {
 		panic(err)
 	}
 
-	err = server.Serve(listener)
-	if err != nil {
-		panic("failed to start grpc: " + err.Error())
+	go func() {
+		err = server.Serve(listener)
+		if err != nil {
+			panic("failed to start grpc: " + err.Error())
+		}
+	}()
+
+	// deregister from consul
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	if err = client.Agent().ServiceDeregister(serviceID); err != nil {
+		zap.S().Info("deregister failed")
+	} else {
+		zap.S().Info("deregister success")
 	}
 }
