@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	uuid "github.com/satori/go.uuid"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/hashicorp/consul/api"
+	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -54,7 +54,7 @@ func main() {
 		panic(err)
 	}
 	check := &api.AgentServiceCheck{
-		GRPC:                           fmt.Sprintf("192.168.2.212:%d", *PORT),
+		GRPC:                           fmt.Sprintf("127.0.0.1:%d", *PORT),
 		Timeout:                        "5s",
 		Interval:                       "5s",
 		DeregisterCriticalServiceAfter: "15s",
@@ -66,7 +66,7 @@ func main() {
 	registration.ID = serviceID
 	registration.Port = *PORT
 	registration.Tags = []string{"Bruce", "Hsu"}
-	registration.Address = "192.168.2.212"
+	registration.Address = "127.0.0.1"
 	registration.Check = check
 
 	err = client.Agent().ServiceRegister(registration)
