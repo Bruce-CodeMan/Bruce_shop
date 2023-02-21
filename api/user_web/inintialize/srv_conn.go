@@ -8,8 +8,8 @@ package inintialize
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/consul/api"
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -19,6 +19,25 @@ import (
 )
 
 func InitSrvConn() {
+	consulInfo := global.ServerConfig.ConsulInfo
+	userConn, err := grpc.Dial(
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulInfo.Host, consulInfo.Port, global.ServerConfig.UserSrvInfo.Name),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
+	)
+	if err != nil {
+		zap.S().Fatal("[InitSrvConn] 连接 失败")
+	}
+	defer func() {
+		if err = userConn.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	userSrvClient := proto.NewUserClient(userConn)
+	global.UserSrvClient = userSrvClient
+}
+
+func InitSrvConn2() {
 	cfg := api.DefaultConfig()
 	consulInfo := global.ServerConfig.ConsulInfo
 	cfg.Address = fmt.Sprintf("%s:%d", consulInfo.Host, consulInfo.Port)
