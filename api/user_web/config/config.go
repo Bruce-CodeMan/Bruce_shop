@@ -7,33 +7,33 @@
 package config
 
 type UserSrvConfig struct {
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
-	Name string `mapstructure:"name"`
+	Host string `mapstructure:"host" json:"host"`
+	Port int    `mapstructure:"port" json:"port"`
+	Name string `mapstructure:"name" json:"name"`
 }
 
 type ServerConfig struct {
-	Name        string        `mapstructure:"name"`
-	Port        int           `mapstructure:"port"`
-	UserSrvInfo UserSrvConfig `mapstructure:"user_srv"`
-	JwtInfo     JWTConfig     `mapstructure:"jwt"`
-	AliSmsInfo  AliSmsConfig  `mapstructure:"sms"`
-	RedisInfo   RedisConfig   `mapstructure:"redis"`
-	ConsulInfo  ConsulConfig  `mapstructure:"consul"`
+	Name        string        `mapstructure:"name" json:"name"`
+	Port        int           `mapstructure:"port" json:"port"`
+	UserSrvInfo UserSrvConfig `mapstructure:"user_srv" json:"user_srv"`
+	JwtInfo     JWTConfig     `mapstructure:"jwt" json:"jwt"`
+	AliSmsInfo  AliSmsConfig  `mapstructure:"sms" json:"sms"`
+	RedisInfo   RedisConfig   `mapstructure:"redis" json:"redis"`
+	ConsulInfo  ConsulConfig  `mapstructure:"consul" json:"consul"`
 }
 
 type JWTConfig struct {
-	SigningKey string `mapstructure:"key"`
+	SigningKey string `mapstructure:"key" json:"key"`
 }
 
 type AliSmsConfig struct {
-	ApiKet    string `mapstructure:"key"`
-	ApiSecret string `mapstructure:"secret"`
+	ApiKet    string `mapstructure:"key" json:"key"`
+	ApiSecret string `mapstructure:"secret" json:"secret"`
 }
 
 type RedisConfig struct {
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
+	Host string `mapstructure:"host" json:"host"`
+	Port int    `mapstructure:"port" json:"port"`
 }
 
 type ConsulConfig struct {
