@@ -1,3 +1,5 @@
 # Bruce_shop
-	First
-	Second
+
+已经完成了用户服务的service层和web层
+
+
